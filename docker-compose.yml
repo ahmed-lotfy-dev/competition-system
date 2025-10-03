@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  backend:
+    build: ./backend
+    container_name: competition-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    networks:
+      - competition-net
+
+  frontend:
+    build: ./frontend
+    container_name: competition-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - competition-net
+
+networks:
+  competition-net:
+    driver: bridge
