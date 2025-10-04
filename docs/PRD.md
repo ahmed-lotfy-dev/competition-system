@@ -1,23 +1,34 @@
 # Product Requirements Document (PRD)
 
-## Objective
+## 1. Goal
 
-توفير نظام محلي لإدارة مسابقات، بحيث:
+Build a local competition management system to be used over a LAN network.
+The system allows:
 
-* الأدمن يدير الأسئلة والمتسابقين.
-* المتسابق يختار الأسئلة ويرسل الإجابات.
-* المحكم يقيّم الإجابات.
-* النتائج تظهر فورًا عند كل الأطراف.
+* **Admin**: manages competitors, judges, and competition sessions.
+* **Competitor**: selects questions and submits answers.
+* **Judge**: evaluates competitors and provides scores.
+* **Results**: updated live via `socket.io` for all participants.
 
-## User Roles
+## 2. Features
 
-* **Admin**: إضافة أسئلة، متابعة كل شيء.
-* **Contestant**: استلام الأسئلة، إرسال الإجابات.
-* **Judge**: مراجعة الإجابات، إعطاء الدرجات/التعليقات.
+* Authentication (basic, local network).
+* Admin dashboard to create/manage competitions.
+* Competitors can join and see assigned questions.
+* Judges can score answers.
+* Live updates of results using WebSockets.
+* Database stored in PostgreSQL (via Docker).
 
-## Constraints
+## 3. Tech Stack
 
-* يعمل على LAN فقط.
-* لا يوجد ديزاين معقد (UI بسيط).
-* Database: SQLite.
-* تشغيل عبر Docker Compose.
+* **Frontend:** Vite + React + Tailwind CSS
+* **Backend:** Node.js + Express + Drizzle ORM
+* **Database:** PostgreSQL 18
+* **Realtime:** socket.io
+* **Deployment:** Docker & Docker Compose (LAN usage)
+
+## 4. Constraints
+
+* Runs only on local network (LAN).
+* Admin must initialize competition and manage judges.
+* Minimal UI (functionality over design).

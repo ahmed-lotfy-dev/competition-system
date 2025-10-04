@@ -19,10 +19,10 @@
 
 ## 📂 Project Structure
 
-```
+``` 
 competition-system/
 ├── backend/          # Express.js + Socket.IO API
-├── frontend/         # Next.js app
+├── frontend/         # Vite app
 ├── docs/             # Documentation (API, PRD, Schema...)
 ├── docker-compose.yml
 └── README.md
@@ -36,7 +36,7 @@ competition-system/
 
 * **Frontend:** Next.js + TailwindCSS
 * **Backend:** Express.js + Socket.IO
-* **Database:** SQLite
+* **Database:** Postgres
 * **Containerization:** Docker & Docker Compose
 
 ---

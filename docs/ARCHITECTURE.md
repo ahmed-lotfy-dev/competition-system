@@ -1,22 +1,33 @@
 # System Architecture
 
+## Overview
+
+The system is built as a **monorepo** with separate `frontend` and `backend` services.
+Postgres database is containerized. All services are orchestrated with `docker-compose`.
+
 ## Components
 
-* **Frontend**: واجهة ويب (React/Next.js أو HTML بسيط).
-* **Backend**: Express.js + Socket.io.
-* **Database**: SQLite (ملف واحد).
-* **Docker**: لتشغيل الكل على LAN.
+1. **Frontend**
 
-## Flow
+   * Built with Vite + React.
+   * Connects to backend REST API + socket.io.
+   * Provides UI for Admin, Competitors, and Judges.
 
-1. Admin يضيف سؤال → Socket event `question:new` يروح للمتسابقين والمحكمين.
-2. Contestant يرسل إجابة → `answer:new` → يظهر عند الأدمن والمحكمين.
-3. Judge يقيّم إجابة → `judge:score` → يتبعت للأدمن والمتسابق.
-4. Admin عنده لوحة Dashboard للمتابعة الكاملة.
+2. **Backend**
 
-## Socket.io Events
+   * Express.js REST API.
+   * Drizzle ORM for PostgreSQL queries.
+   * Socket.io for real-time updates.
+   * API exposed on port `5000`.
 
-* `question:new`
-* `answer:new`
-* `judge:score`
-* `results:update`
+3. **Database**
+
+   * PostgreSQL 18 running in a container.
+   * Holds users, competitions, results.
+
+## Data Flow
+
+* Admin creates competitions/questions.
+* Competitor selects a question → event sent to backend.
+* Judges evaluate competitor → backend stores result.
+* Socket.io pushes updated results to Admin & Competitors.

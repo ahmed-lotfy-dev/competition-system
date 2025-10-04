@@ -1,42 +1,90 @@
 # Database Schema
 
-## Tables
+This project uses **PostgreSQL** as the main database, managed via **Drizzle ORM**.
+The schema is designed to support a real-time competition system with roles (Admin, Judge, Contestant), questions, answers, and scoring.
 
-### users
+---
 
-| Column     | Type      | Notes                      |
-| ---------- | --------- | -------------------------- |
-| id         | INTEGER   | Primary Key                |
-| name       | TEXT      | اسم المستخدم               |
-| role       | TEXT      | admin / judge / contestant |
-| created_at | TIMESTAMP |                            |
+## 🗄️ Tables
 
-### questions
+### 1. `users`
 
-| Column     | Type      | Notes       |
-| ---------- | --------- | ----------- |
-| id         | INTEGER   | Primary Key |
-| text       | TEXT      | نص السؤال   |
-| created_by | INTEGER   | FK → users  |
-| created_at | TIMESTAMP |             |
+Stores all users in the system.
 
-### contestant_answers
+| Column       | Type      | Constraints                                    | Description             |
+| ------------ | --------- | ---------------------------------------------- | ----------------------- |
+| `id`         | UUID      | PK, default `gen_random_uuid()`                | Unique user identifier  |
+| `name`       | VARCHAR   | NOT NULL                                       | Full name               |
+| `role`       | VARCHAR   | CHECK (role IN ('admin','judge','contestant')) | User role in the system |
+| `created_at` | TIMESTAMP | DEFAULT now()                                  | When user was added     |
 
-| Column        | Type      | Notes          |
-| ------------- | --------- | -------------- |
-| id            | INTEGER   | Primary Key    |
-| contestant_id | INTEGER   | FK → users     |
-| question_id   | INTEGER   | FK → questions |
-| answer_text   | TEXT      | إجابة المتسابق |
-| created_at    | TIMESTAMP |                |
+---
 
-### judge_scores
+### 2. `committees`
 
-| Column               | Type      | Notes                   |
-| -------------------- | --------- | ----------------------- |
-| id                   | INTEGER   | Primary Key             |
-| judge_id             | INTEGER   | FK → users              |
-| contestant_answer_id | INTEGER   | FK → contestant_answers |
-| score                | INTEGER   | 0/1 أو درجات            |
-| comment              | TEXT      | تعليق المحكم            |
-| created_at           | TIMESTAMP |                         |
+Committees that manage questions.
+
+| Column       | Type      | Constraints   | Description          |
+| ------------ | --------- | ------------- | -------------------- |
+| `id`         | UUID      | PK            | Committee identifier |
+| `name`       | VARCHAR   | NOT NULL      | Committee name       |
+| `created_at` | TIMESTAMP | DEFAULT now() | Creation timestamp   |
+
+---
+
+### 3. `questions`
+
+Questions created by committees.
+
+| Column         | Type      | Constraints         | Description            |
+| -------------- | --------- | ------------------- | ---------------------- |
+| `id`           | UUID      | PK                  | Question ID            |
+| `committee_id` | UUID      | FK → committees(id) | Belongs to a committee |
+| `text`         | TEXT      | NOT NULL            | Question text          |
+| `created_at`   | TIMESTAMP | DEFAULT now()       | Created time           |
+
+---
+
+### 4. `answers`
+
+Contestants’ answers to questions.
+
+| Column        | Type      | Constraints        | Description                |
+| ------------- | --------- | ------------------ | -------------------------- |
+| `id`          | UUID      | PK                 | Answer ID                  |
+| `question_id` | UUID      | FK → questions(id) | Related question           |
+| `user_id`     | UUID      | FK → users(id)     | Contestant who answered    |
+| `text`        | TEXT      | NOT NULL           | The actual answer          |
+| `created_at`  | TIMESTAMP | DEFAULT now()      | Answer submitted timestamp |
+
+---
+
+### 5. `judgements`
+
+Judges’ evaluations of answers.
+
+| Column       | Type      | Constraints                                  | Description          |
+| ------------ | --------- | -------------------------------------------- | -------------------- |
+| `id`         | UUID      | PK                                           | Judgement ID         |
+| `answer_id`  | UUID      | FK → answers(id)                             | Answer being judged  |
+| `judge_id`   | UUID      | FK → users(id)                               | Judge user ID        |
+| `score`      | INT       | NOT NULL, CHECK (score >= 0 AND score <= 10) | Numeric score        |
+| `comment`    | TEXT      |                                              | Optional feedback    |
+| `created_at` | TIMESTAMP | DEFAULT now()                                | Evaluation timestamp |
+
+---
+
+## 🔌 Relations
+
+* **One `committee` → many `questions`**
+* **One `question` → many `answers`**
+* **One `answer` → many `judgements`**
+* **One `judge` (user with role=judge) → many `judgements`**
+
+---
+
+## ⚡ Notes
+
+* All `UUID` fields use PostgreSQL’s `gen_random_uuid()` (from `pgcrypto`) for primary keys.
+* `timestamps` are handled with `DEFAULT now()`.
+* Drizzle ORM migrations are used to sync schema changes.

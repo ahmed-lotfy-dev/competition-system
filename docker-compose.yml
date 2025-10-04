@@ -1,24 +1,40 @@
 services:
+  postgres:
+    image: postgres:18
+    container_name: competition-db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: competition
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build: ./backend
     container_name: competition-backend
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://admin:admin@postgres:5432/competition
+      PORT: 5000
     ports:
       - "5000:5000"
+    command: sh -c "npx ts-node src/db/seed.ts && node dist/index.js"
     volumes:
       - ./backend:/app
-    networks:
-      - competition-net
+      - /app/node_modules
 
   frontend:
     build: ./frontend
     container_name: competition-frontend
+    restart: always
     ports:
       - "3000:3000"
     depends_on:
       - backend
-    networks:
-      - competition-net
 
-networks:
-  competition-net:
-    driver: bridge
+volumes:
+  postgres_data:

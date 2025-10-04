@@ -1,0 +1,15 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Env files
+.env
+
+# Build outputs
+dist
+.next
+out
+
+# Docker volumes
+data/db
